@@ -1,28 +1,33 @@
 [app]
-title = Khanjar Supreme
+title = Khanjar
 package.name = khanjar
-package.domain = org.supreme
+package.domain = com.trading
 
 source.dir = .
-source.include_exts = py,png,jpg,kv,atlas,json
+source.include_exts = py,png,jpg,kv,atlas
 
 version = 5.0
 
-requirements = python3,kivy==2.2.1,requests,numpy,pyjnius
+requirements = python3,kivy==2.3.0,kivymd==1.2.0,requests,plyer,numpy
 
 orientation = portrait
 fullscreen = 0
 
-android.permissions = INTERNET,WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE,VIBRATE,FOREGROUND_SERVICE,WAKE_LOCK
-
+android.permissions = INTERNET,ACCESS_NETWORK_STATE,VIBRATE,WAKE_LOCK,FOREGROUND_SERVICE,POST_NOTIFICATIONS,READ_EXTERNAL_STORAGE,WRITE_EXTERNAL_STORAGE
 android.api = 31
 android.minapi = 24
 android.ndk = 25b
-android.archs = arm64-v8a
+android.gradle_dependencies = com.google.android.material:material:1.9.0
+android.enable_androidx = True
 
-android.gradle_dependencies = androidx.core:core:1.6.0,androidx.appcompat:appcompat:1.3.1
+# صریحاً SDK و NDK رو مشخص می‌کنیم
+android.sdk_path = /home/runner/.buildozer/android/platform/android-sdk
+android.ndk_path = /home/runner/.buildozer/android/platform/android-ndk-r25b
+android.accept_sdk_license = True
 
 services = KhanjarService:service.py:foreground
+
+android.arch = arm64-v8a
 
 [buildozer]
 log_level = 2
