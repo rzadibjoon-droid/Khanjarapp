@@ -1,21 +1,21 @@
-name: 🔥 Build Khanjar APK
+name: 🔥 Build Khanjar APK (BUILDZOR - Final Version)
 
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:
+  workflow_dispatch: # برای اجرای دستی بیلد از گیت‌هاب
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04   # ❗️❗️ خیلی مهم: برگشت به نسخه پایدار اوبونتو ❗️❗️
     timeout-minutes: 60
     
     steps:
     - name: 📥 Checkout Repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4 # به v4 بروز شد
     
     - name: 🐍 Set up Python 3.10
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5 # به v5 بروز شد
       with:
         python-version: '3.10'
     
@@ -26,7 +26,7 @@ jobs:
           ~/.buildozer
           .buildozer
           ~/.gradle
-        key: buildozer-${{ hashFiles('buildozer.spec') }}-v2
+        key: buildozer-${{ hashFiles('buildozer.spec') }}-${{ runner.os }}-python-${{ matrix.python-version }}-v3 # کلید کش بهبود یافت
         restore-keys: |
           buildozer-
     
@@ -46,10 +46,14 @@ jobs:
           wget \
           unzip
     
-    - name: 🔧 Install Buildozer & Cython
+    - name: 🔧 Install Pinned Buildozer Stack
       run: |
         pip install --upgrade pip
-        pip install buildozer cython==0.29.36
+        # ❗️❗️ اینجا کلیدیه: buildozer و python-for-android را پین می‌کنیم ❗️❗️
+        pip install \
+          cython==0.29.36 \
+          buildozer==1.5.0 \
+          python-for-android==2023.09.16
     
     - name: 📥 Pre-download Android NDK r25b
       run: |
