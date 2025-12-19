@@ -27,7 +27,7 @@ jobs:
           .buildozer
           ~/.gradle
           ~/.android
-        key: buildozer-${{ hashFiles('buildozer.spec') }}-v3
+        key: buildozer-${{ hashFiles('buildozer.spec') }}-v4
         restore-keys: |
           buildozer-
     
@@ -66,10 +66,15 @@ jobs:
           rm commandlinetools-linux-9477386_latest.zip
         fi
         
+        # ساخت Symlink برای سازگاری با Buildozer
+        mkdir -p $ANDROID_HOME/tools/bin
+        ln -sf $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager $ANDROID_HOME/tools/bin/sdkmanager
+        ln -sf $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager $ANDROID_HOME/tools/bin/avdmanager
+        
         # قبول لایسنس‌ها
         yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
         
-        echo "✅ Android SDK setup complete"
+        echo "✅ Android SDK setup with legacy path compatibility"
     
     - name: 📥 Pre-download Android NDK r25b
       run: |
