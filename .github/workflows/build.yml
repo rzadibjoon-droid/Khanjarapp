@@ -1,0 +1,53 @@
+name: 🔥 Build Khanjar APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout Repository
+      uses: actions/checkout@v3
+    
+    - name: 🐍 Set up Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    
+    - name: 📦 Install System Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          build-essential \
+          libssl-dev \
+          libffi-dev \
+          openjdk-17-jdk \
+          zlib1g-dev \
+          ccache \
+          autoconf \
+          automake \
+          libtool
+    
+    - name: 🔧 Install Buildozer & Cython
+      run: |
+        pip install --upgrade pip
+        pip install buildozer cython==0.29.36
+    
+    - name: 🏗️ Build APK
+      run: |
+        buildozer -v android debug
+    
+    - name: 📤 Upload APK as Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: khanjar-apk
+        path: bin/*.apk
+    
+    - name: ✅ Build Complete
+      run: |
+        echo "🎉 APK ساخته شد!"
+        ls -lh bin/
