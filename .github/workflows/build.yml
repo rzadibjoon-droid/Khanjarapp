@@ -27,7 +27,7 @@ jobs:
           .buildozer
           ~/.gradle
           ~/.android
-        key: buildozer-${{ hashFiles('buildozer.spec') }}-v4
+        key: buildozer-${{ hashFiles('buildozer.spec') }}-v5
         restore-keys: |
           buildozer-
     
@@ -52,39 +52,69 @@ jobs:
         pip install --upgrade pip
         pip install buildozer cython==0.29.36
     
-    - name: 📜 Setup Android SDK & Accept Licenses
+    - name: 📜 Setup Android SDK Complete
       run: |
         export ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk
+        
+        # ساخت ساختار کامل
         mkdir -p $ANDROID_HOME/cmdline-tools
+        mkdir -p $ANDROID_HOME/tools/bin
+        
         cd $ANDROID_HOME/cmdline-tools
         
         # دانلود SDK Command Line Tools
         if [ ! -d "latest" ]; then
+          echo "📥 Downloading Android SDK Command Line Tools..."
           wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip
           unzip -q commandlinetools-linux-9477386_latest.zip
           mv cmdline-tools latest
           rm commandlinetools-linux-9477386_latest.zip
+          echo "✅ SDK Command Line Tools installed"
+        else
+          echo "✅ SDK Command Line Tools already cached"
         fi
         
-        # ساخت Symlink برای سازگاری با Buildozer
-        mkdir -p $ANDROID_HOME/tools/bin
+        # ساخت Symlink برای مسیر قدیمی
         ln -sf $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager $ANDROID_HOME/tools/bin/sdkmanager
         ln -sf $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager $ANDROID_HOME/tools/bin/avdmanager
+        
+        # تست وجود sdkmanager
+        if [ -f "$ANDROID_HOME/tools/bin/sdkmanager" ]; then
+          echo "✅ sdkmanager is accessible at legacy path"
+        else
+          echo "❌ sdkmanager symlink failed!"
+          exit 1
+        fi
         
         # قبول لایسنس‌ها
         yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
         
-        echo "✅ Android SDK setup with legacy path compatibility"
+        echo "✅ Android SDK setup complete"
     
     - name: 📥 Pre-download Android NDK r25b
       run: |
         mkdir -p ~/.buildozer/android/platform
         cd ~/.buildozer/android/platform
         if [ ! -f "android-ndk-r25b-linux.zip" ]; then
+          echo "📥 Downloading Android NDK r25b..."
           wget -q https://dl.google.com/android/repository/android-ndk-r25b-linux.zip
           echo "✅ NDK downloaded"
         else
           echo "✅ NDK already cached"
+        fi
+    
+    - name: ✅ Verify SDK Setup Before Build
+      run: |
+        export ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk
+        echo "🔍 Checking SDK paths..."
+        ls -la $ANDROID_HOME/tools/bin/ || echo "❌ tools/bin not found"
+        ls -la $ANDROID_HOME/cmdline-tools/latest/bin/ || echo "❌ cmdline-tools not found"
+        
+        if [ -f "$ANDROID_HOME/tools/bin/sdkmanager" ]; then
+          echo "✅ sdkmanager is ready!"
+        else
+          echo "❌ sdkmanager still missing!"
+          exit 1
         fi
     
     - name: 🏗️ Build APK
